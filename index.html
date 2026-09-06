@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>The Square Token</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Alegreya+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night:#171B2E;
+    --night-deep:#0E1120;
+    --night-lift:#212741;
+    --bone:#D9D4C4;
+    --bone-dim:#8E8B80;
+    --parchment:#E8DCC4;
+    --brass:#B58D4C;
+    --blood:#94322B;
+    --edge:rgba(181,141,76,.28);
+    --r:14px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(120% 70% at 50% -10%, #232A47 0%, var(--night) 45%, var(--night-deep) 100%);
+    background-attachment:fixed;
+    color:var(--bone);
+    font-family:"Alegreya Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size:17px;
+    line-height:1.5;
+    min-height:100vh;
+    padding:env(safe-area-inset-top) 16px calc(24px + env(safe-area-inset-bottom));
+  }
+  .wrap{max-width:430px;margin:0 auto;padding-top:22px}
+
+  h1{
+    font-family:"IM Fell English", Georgia, serif;
+    font-weight:400;
+    font-size:31px;
+    line-height:1.1;
+    margin:0 0 4px;
+    color:var(--parchment);
+    letter-spacing:.01em;
+  }
+  .sub{color:var(--bone-dim);font-size:15px;margin:0 0 22px}
+  .sub em{font-style:italic;color:var(--brass)}
+
+  .panel{
+    background:linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,0));
+    border:1px solid var(--edge);
+    border-radius:var(--r);
+    padding:18px;
+  }
+  .panel + .panel{margin-top:14px}
+
+  /* setup */
+  .field{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .field + .field{margin-top:16px}
+  .field label{font-size:16px;color:var(--bone)}
+  .field .hint{display:block;font-size:13.5px;color:var(--bone-dim);line-height:1.35;margin-top:2px}
+  .stepper{display:flex;align-items:center;gap:2px;flex:0 0 auto}
+  .stepper button{
+    width:44px;height:44px;font-size:22px;line-height:1;
+    background:var(--night-lift);color:var(--parchment);
+    border:1px solid var(--edge);cursor:pointer;
+    font-family:inherit;
+  }
+  .stepper button:first-child{border-radius:10px 0 0 10px}
+  .stepper button:last-child{border-radius:0 10px 10px 0}
+  .stepper button:active{background:#2C3355}
+  .stepper .val{
+    min-width:56px;text-align:center;font-size:21px;
+    font-variant-numeric:tabular-nums;
+    padding:0 4px;color:var(--parchment);
+  }
+
+  /* main stage */
+  .stage{text-align:center;padding:26px 18px 22px}
+  .who{
+    font-family:"IM Fell English", Georgia, serif;
+    font-size:27px;color:var(--parchment);margin:0;
+  }
+  .meta{
+    font-size:14.5px;color:var(--bone-dim);margin:5px 0 0;
+    font-variant-numeric:tabular-nums;
+  }
+  .art{margin:20px auto 6px;display:block}
+  .odds{
+    font-family:"IM Fell English", Georgia, serif;
+    font-size:44px;line-height:1;color:var(--brass);
+    font-variant-numeric:tabular-nums;margin:14px 0 2px;
+  }
+  .odds-label{font-size:14px;color:var(--bone-dim);margin:0}
+
+  .verdict{
+    font-family:"IM Fell English", Georgia, serif;
+    font-size:25px;line-height:1.25;margin:16px 0 6px;
+  }
+  .verdict.felt{color:var(--parchment)}
+  .verdict.missed{color:var(--bone-dim)}
+  .direction{font-size:16px;color:var(--bone);margin:0 auto;max-width:30em}
+  .roll{font-size:13px;color:var(--bone-dim);margin-top:12px;font-variant-numeric:tabular-nums}
+
+  /* buttons */
+  .btn{
+    display:block;width:100%;
+    padding:16px 18px;margin-top:10px;
+    font-family:inherit;font-size:17px;
+    background:var(--night-lift);color:var(--parchment);
+    border:1px solid var(--edge);border-radius:11px;
+    cursor:pointer;text-align:center;
+  }
+  .btn:active{background:#2C3355}
+  .btn.primary{
+    background:var(--blood);border-color:#B24A41;color:#F6E9DF;
+    font-size:19px;padding:19px;
+  }
+  .btn.primary:active{background:#A83A32}
+  .btn .note{display:block;font-size:13.5px;color:var(--bone-dim);margin-top:3px}
+  .btn.primary .note{color:#E5BDB4}
+  .btn:focus-visible,.stepper button:focus-visible,summary:focus-visible{
+    outline:2px solid var(--brass);outline-offset:2px;
+  }
+
+  .minor{display:flex;gap:10px;margin-top:14px}
+  .minor .btn{margin-top:0;font-size:15px;padding:12px;background:transparent;color:var(--bone-dim)}
+
+  /* log */
+  .log{margin-top:14px;font-size:15px}
+  .log h2{
+    font-family:"IM Fell English",Georgia,serif;font-weight:400;
+    font-size:18px;color:var(--brass);margin:0 0 10px;
+  }
+  .log ol{list-style:none;margin:0;padding:0}
+  .log li{
+    display:flex;gap:10px;padding:7px 0;
+    border-top:1px solid rgba(217,212,196,.09);
+    color:var(--bone-dim);line-height:1.35;
+  }
+  .log li:first-child{border-top:0}
+  .log .n{color:var(--brass);font-variant-numeric:tabular-nums;flex:0 0 2.1em}
+
+  details{margin-top:14px}
+  summary{
+    cursor:pointer;color:var(--bone-dim);font-size:15px;
+    padding:8px 0;list-style:none;
+  }
+  summary::-webkit-details-marker{display:none}
+  summary::before{content:"⌄ ";color:var(--brass)}
+  details[open] summary::before{content:"⌃ "}
+  table{width:100%;border-collapse:collapse;font-size:15px;font-variant-numeric:tabular-nums}
+  th,td{text-align:left;padding:5px 0;border-top:1px solid rgba(217,212,196,.09)}
+  th{color:var(--bone-dim);font-weight:500}
+  td:last-child,th:last-child{text-align:right;color:var(--parchment)}
+  .formula{
+    font-family:"IM Fell English",Georgia,serif;font-size:18px;
+    color:var(--brass);text-align:center;padding:8px 0 12px;
+  }
+  .foot{color:var(--bone-dim);font-size:13.5px;margin-top:20px;text-align:center;line-height:1.5}
+  @media (prefers-reduced-motion:no-preference){
+    .fade{animation:rise .28s ease-out}
+    @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>The square token</h1>
+  <p class="sub">Who feels <em>Donkey Wrangler</em> in the bag</p>
+
+  <div id="app"></div>
+
+  <div class="foot">Roll happens before the draw. Once someone takes the token, the rest of the bag is ordinary.</div>
+</div>
+
+<script>
+(function(){
+  const app = document.getElementById('app');
+
+  const S = {
+    bag: 10,
+    probes: 9,         // effective touches per rummage
+    drawn: 0,
+    phase: 'setup',    // setup | ready | result | done
+    roll: null,
+    felt: null,
+    holder: null,      // {player, blind}
+    log: []
+  };
+  let history = [];
+
+  const remaining = () => S.bag - S.drawn;
+  const player = () => S.drawn + 1;
+  const chance = n => 1 - Math.pow(1 - 1/n, S.probes);
+  const pct = n => Math.round(chance(n) * 100);
+
+  function snapshot(){
+    history.push(JSON.parse(JSON.stringify({b:S.bag,a:S.probes,d:S.drawn,p:S.phase,r:S.roll,f:S.felt,h:S.holder,l:S.log})));
+    if(history.length > 40) history.shift();
+  }
+  function undo(){
+    const h = history.pop(); if(!h) return;
+    S.bag=h.b; S.probes=h.a; S.drawn=h.d; S.phase=h.p; S.roll=h.r; S.felt=h.f; S.holder=h.h; S.log=h.l;
+    render();
+  }
+
+  // --- token art ---------------------------------------------------------
+  function art(kind){
+    // kind: 'bag' | 'square' | 'round'
+    const ring = '#B58D4C', face = '#E8DCC4', shadow = 'rgba(0,0,0,.35)';
+    if(kind === 'square'){
+      return `<svg class="art" width="118" height="92" viewBox="0 0 118 92" aria-hidden="true">
+        <circle cx="26" cy="60" r="19" fill="${shadow}"/>
+        <circle cx="26" cy="57" r="19" fill="${face}" stroke="${ring}" stroke-width="2.5"/>
+        <circle cx="92" cy="60" r="19" fill="${shadow}"/>
+        <circle cx="92" cy="57" r="19" fill="${face}" stroke="${ring}" stroke-width="2.5"/>
+        <rect x="35" y="15" width="48" height="48" rx="4" fill="${shadow}"/>
+        <rect x="35" y="11" width="48" height="48" rx="4" fill="${face}" stroke="${ring}" stroke-width="3"/>
+        <rect x="41" y="17" width="36" height="36" rx="2" fill="none" stroke="${ring}" stroke-width="1" opacity=".55"/>
+      </svg>`;
+    }
+    if(kind === 'round'){
+      return `<svg class="art" width="118" height="92" viewBox="0 0 118 92" aria-hidden="true" opacity=".65">
+        <circle cx="30" cy="52" r="20" fill="${shadow}"/>
+        <circle cx="30" cy="49" r="20" fill="none" stroke="${ring}" stroke-width="2.5"/>
+        <circle cx="59" cy="41" r="24" fill="none" stroke="${ring}" stroke-width="2.5"/>
+        <circle cx="88" cy="52" r="20" fill="none" stroke="${ring}" stroke-width="2.5"/>
+      </svg>`;
+    }
+    return `<svg class="art" width="118" height="96" viewBox="0 0 118 96" aria-hidden="true">
+      <path d="M32 30 C22 46 18 66 26 80 C36 94 82 94 92 80 C100 66 96 46 86 30 Z"
+            fill="#212741" stroke="${ring}" stroke-width="2.5"/>
+      <path d="M32 30 C44 22 74 22 86 30" fill="none" stroke="${ring}" stroke-width="2.5"/>
+      <path d="M38 24 C48 14 70 14 80 24" fill="none" stroke="${ring}" stroke-width="2" opacity=".6"/>
+      <rect x="50" y="52" width="20" height="20" rx="2" fill="none" stroke="${ring}" stroke-width="2" opacity=".5"/>
+    </svg>`;
+  }
+
+  // --- screens -----------------------------------------------------------
+  function setupScreen(){
+    return `
+    <div class="panel">
+      <div class="field">
+        <div>
+          <label for="bag">Tokens in the bag</label>
+          <span class="hint">One per player, Donkey Wrangler among them.</span>
+        </div>
+        <div class="stepper">
+          <button type="button" data-act="bag-" aria-label="Fewer tokens">−</button>
+          <span class="val" id="bag">${S.bag}</span>
+          <button type="button" data-act="bag+" aria-label="More tokens">+</button>
+        </div>
+      </div>
+      <div class="field">
+        <div>
+          <label for="anch">How obvious the token is</label>
+          <span class="hint">Lower for blunt corners, thick cloth, or a hurried grab.</span>
+        </div>
+        <div class="stepper">
+          <button type="button" data-act="a-" aria-label="Less obvious">−</button>
+          <span class="val" id="anch">${S.probes}</span>
+          <button type="button" data-act="a+" aria-label="More obvious">+</button>
+        </div>
+      </div>
+    </div>
+    <button class="btn primary" data-act="start">Open the bag
+      <span class="note">First player: ${pct(S.bag)}% &middot; last player: certain</span>
+    </button>
+    ${curveTable()}`;
+  }
+
+  function readyScreen(){
+    const n = remaining();
+    const forced = n === 1;
+    return `
+    <div class="panel stage fade">
+      <p class="who">Player ${player()}</p>
+      <p class="meta">${n} token${n===1?'':'s'} left in the bag</p>
+      ${art('bag')}
+      <p class="odds">${pct(n)}%</p>
+      <p class="odds-label">${forced ? 'nothing else is in there' : 'chance they feel the square edges'}</p>
+    </div>
+    <button class="btn primary" data-act="roll">${forced ? 'Hand them the last token' : 'They reach in'}</button>
+    ${footControls()}
+    ${logBlock()}`;
+  }
+
+  function resultScreen(){
+    const n = remaining();
+    if(S.felt){
+      return `
+      <div class="panel stage fade">
+        <p class="meta">Player ${player()} &middot; ${n} token${n===1?'':'s'} in the bag</p>
+        ${art('square')}
+        <p class="verdict felt">They feel the square one</p>
+        <p class="direction">Ask quietly whether they want it, or would rather draw something else.</p>
+        <p class="roll">rolled ${S.roll} against ${pct(n)}</p>
+      </div>
+      <button class="btn primary" data-act="took">They take it
+        <span class="note">Donkey Wrangler goes to player ${player()}</span>
+      </button>
+      <button class="btn" data-act="passed">They leave it
+        <span class="note">They draw one of the other ${n-1}; the square one stays</span>
+      </button>
+      ${footControls()}
+      ${logBlock()}`;
+    }
+    const blind = Math.round(100/n);
+    return `
+    <div class="panel stage fade">
+      <p class="meta">Player ${player()} &middot; ${n} tokens in the bag</p>
+      ${art('round')}
+      <p class="verdict missed">Nothing but round edges</p>
+      <p class="direction">Let them draw as normal. Roughly ${blind}% odds they pull the square one anyway.</p>
+      <p class="roll">rolled ${S.roll} against ${pct(n)}</p>
+    </div>
+    <button class="btn primary" data-act="other">They drew a different token</button>
+    <button class="btn" data-act="blind">They drew the square one
+      <span class="note">Donkey Wrangler goes to player ${player()}, no choice offered</span>
+    </button>
+    ${footControls()}
+    ${logBlock()}`;
+  }
+
+  function doneScreen(){
+    const h = S.holder;
+    return `
+    <div class="panel stage fade">
+      ${art('square')}
+      <p class="who">Player ${h.player} has it</p>
+      <p class="direction" style="margin-top:8px">${
+        h.blind
+          ? 'Drew it blind, never felt it coming.'
+          : h.forced
+            ? 'Last one in the bag. No choice about it.'
+            : 'Felt it, and took it on purpose.'
+      }</p>
+    </div>
+    ${logBlock()}
+    <button class="btn" data-act="reset">New game</button>`;
+  }
+
+  function footControls(){
+    return `<div class="minor">
+      <button class="btn" data-act="undo">Undo</button>
+      <button class="btn" data-act="reset">Start over</button>
+    </div>`;
+  }
+
+  function logBlock(){
+    if(!S.log.length) return '';
+    return `<div class="panel log">
+      <h2>The draw so far</h2>
+      <ol>${S.log.map(e => `<li><span class="n">${e.p}</span><span>${e.t}</span></li>`).join('')}</ol>
+    </div>`;
+  }
+
+  function curveTable(){
+    const rows = [];
+    for(let n = S.bag; n >= 1; n--) rows.push(`<tr><td>${n} left</td><td>${pct(n)}%</td></tr>`);
+    return `<details>
+      <summary>How the chance is worked out</summary>
+      <div class="panel" style="margin-top:6px">
+        <p class="formula">chance = 1 − (1 − 1/n)<sup>${S.probes}</sup></p>
+        <p class="hint" style="text-align:center;margin:0 0 10px">Their hand brushes about ${S.probes} tokens on the way in.</p>
+        <table><tr><th>Tokens in bag</th><th>Feels it</th></tr>${rows.join('')}</table>
+      </div>
+    </details>`;
+  }
+
+  function render(){
+    if(S.phase === 'setup') app.innerHTML = setupScreen();
+    else if(S.phase === 'ready') app.innerHTML = readyScreen();
+    else if(S.phase === 'result') app.innerHTML = resultScreen();
+    else app.innerHTML = doneScreen();
+    window.scrollTo({top:0});
+  }
+
+  // --- actions -----------------------------------------------------------
+  const acts = {
+    'bag-'(){ S.bag = Math.max(3, S.bag-1); },
+    'bag+'(){ S.bag = Math.min(20, S.bag+1); },
+    'a-'(){ S.probes = Math.max(3, S.probes-1); },
+    'a+'(){ S.probes = Math.min(20, S.probes+1); },
+    start(){ snapshot(); S.phase='ready'; },
+    roll(){
+      snapshot();
+      const n = remaining();
+      S.roll = Math.floor(Math.random()*100) + 1;
+      S.felt = n === 1 ? true : S.roll <= pct(n);
+      if(n === 1){
+        S.holder = {player: player(), blind:false, forced:true};
+        S.log.push({p:player(), t:'took the last token in the bag'});
+        S.phase = 'done';
+      } else {
+        S.phase = 'result';
+      }
+    },
+    took(){
+      snapshot();
+      S.holder = {player: player(), blind:false, forced:false};
+      S.log.push({p:player(), t:'felt it and took it'});
+      S.phase = 'done';
+    },
+    passed(){
+      snapshot();
+      S.log.push({p:player(), t:'felt it, drew something else'});
+      S.drawn++; S.phase='ready';
+    },
+    other(){
+      snapshot();
+      S.log.push({p:player(), t:'noticed nothing, drew something else'});
+      S.drawn++; S.phase='ready';
+    },
+    blind(){
+      snapshot();
+      S.holder = {player: player(), blind:true, forced:false};
+      S.log.push({p:player(), t:'noticed nothing, drew it anyway'});
+      S.phase = 'done';
+    },
+    undo,
+    reset(){
+      S.drawn=0; S.probes=9; S.phase='setup'; S.roll=null; S.felt=null; S.holder=null; S.log=[];
+      history=[];
+    }
+  };
+
+  app.addEventListener('click', e => {
+    const btn = e.target.closest('[data-act]');
+    if(!btn) return;
+    const fn = acts[btn.dataset.act];
+    if(fn){ fn(); if(btn.dataset.act !== 'undo') render(); }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
